@@ -22,7 +22,19 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $event = Event::create([
+
+            // spread operator: per aggiungere manualmente lo user_id 1 (WIP)
+            ... $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'start_time' => 'required|date',
+                'end_time' => 'required|date|after:start_time'
+            ]),
+            'user_id' => 1
+        ]);
+
+        return $event;
     }
 
     /**
