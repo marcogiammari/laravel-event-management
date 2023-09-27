@@ -4,27 +4,25 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
+use App\Http\Traits\CanLoadRelationships;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
+    use CanLoadRelationships;
+
+    private array $relations = ['user', 'attendees', 'attendees.user'];
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // query comincia a costruire la query
-        $query = Event::query();
         // array delle relazioni che l'utente può richiedere
-        $relations = ['user', 'attendees', 'attendees.user'];
-
-        foreach ($relations as $relation) {
-            $query->when(
-                $this->shouldIncludeRelation($relation),
-                fn ($q) => $q->with($relation)
-            );
-        }
+        
+        // query comincia a costruire la query
+        $query = $this->loadRelationships(Event::query());
 
         // Laravel intuisce che deve inviare una response->json()
         // return Event::all();
@@ -32,24 +30,6 @@ class EventController extends Controller
         // raggruppa i risultati nella proprietà "data"
         return EventResource::collection(
             $query->latest()->paginate());
-    }
-
-    protected function shouldIncludeRelation(string $relation): bool 
-    {
-        // non è obbligatorio Request $request come parametro per accedere alla request
-        // si può usare la funzione request()
-        $include = request()->query('include');
-
-        if (!$include) {
-            return false;
-        }
-
-        /* array_map esegue la funzione trim, per eliminare ogni spazio vuoto, per ogni elemento ritornato dalla funzione explode, che riceve una stringa e genera un array in base a un separatore (la virgola)
-        */
-        $relations = array_map('trim', explode(',', $include));
-
-        // controlla se relation è nell'array relations
-        return in_array($relation, $relations);
     }
 
     /**
@@ -69,7 +49,7 @@ class EventController extends Controller
             'user_id' => 1
         ]);
 
-        return $event;
+        return new EventResource($this->loadRelationships($event));
     }
 
     /**
@@ -77,9 +57,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        $event->load('user');
-        $event->load('attendees');
-        return new EventResource($event);
+        return new EventResource($this->loadRelationships($event));
     }
 
     /**
@@ -98,7 +76,7 @@ class EventController extends Controller
             ])
         );
 
-        return new EventResource($event);
+        return new EventResource($this->loadRelationships($event));
     }
 
     /**
