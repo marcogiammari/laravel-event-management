@@ -18,7 +18,7 @@ class EventController extends Controller
         // return Event::all();
 
         // raggruppa i risultati nella proprietà "data"
-        return EventResource::collection(Event::with('user')->get());
+        return EventResource::collection(Event::with('user')->paginate());
     }
 
     /**
