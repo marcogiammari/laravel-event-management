@@ -7,7 +7,6 @@ use App\Http\Resources\EventResource;
 use App\Http\Traits\CanLoadRelationships;
 use App\Models\Event;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class EventController extends Controller
 {
@@ -18,6 +17,13 @@ class EventController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
+
+        // ogni metodo della policy relativa viene chiamata prima di ogni action
+        /* 
+        Se il controller è un RESOURCE CONTROLLER e se i metodi del controller combaciano con i nomi dei metodi della policy, Laravel invocherà automaticamente i metodi della policy prima di eseguire qualsiasi action del controller. Controlla sempre nella documentazione le corrispondenze tra i nomi dei metodi.
+        */
+        // il secondo argomento è il parametro della rotta {event}
+        $this->authorizeResource(Event::class, 'event');
     }
     /**
      * Display a listing of the resource.
@@ -76,7 +82,7 @@ class EventController extends Controller
         // }
 
         // fa la stessa identica cosa del blocco commentato sopra
-        $this->authorize('update-event', $event);
+        // $this->authorize('update-event', $event);
 
         $event->update(
             $request->validate([

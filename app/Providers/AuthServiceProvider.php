@@ -23,19 +23,22 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // i gate si usano per logiche semplici applicabili a più risorse
+        // per logiche più complesse e diversificate sono più adatte le policy
+
         // definizione del gate
         // solo lo user proprietario dell'evento può modificarlo
-        Gate::define(
-            'update-event',
-            function ($user, Event $event) {
-                return $user->id === $event->user_id;
-            }
-        );
+        // Gate::define(
+        //     'update-event',
+        //     function ($user, Event $event) {
+        //         return $user->id === $event->user_id;
+        //     }
+        // );
 
-        Gate::define('delete-attendee', 
-            function ($user, Event $event, Attendee $attendee) {
-                return $user->id === $attendee->user_id || $user->id === $event->user_id;
-            }
-        );
+        // Gate::define('delete-attendee', 
+        //     function ($user, Event $event, Attendee $attendee) {
+        //         return $user->id === $attendee->user_id || $user->id === $event->user_id;
+        //     }
+        // );
     }
 }
