@@ -46,7 +46,10 @@ return [
     |
     */
 
-    'expiration' => null,
+    // setta la validità del token a un giorno
+    // i token scaduti rimangono nel db a meno che non si lanci
+    // php artisan sanctum:prune-expired (cfr scheduled commands)
+    'expiration' => 60 * 24,
 
     /*
     |--------------------------------------------------------------------------
