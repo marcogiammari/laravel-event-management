@@ -20,6 +20,15 @@ class AttendeeController extends Controller
         $this->middleware('auth:sanctum')->except(['index', 'show', 'update']);
 
         $this->authorizeResource(Attendee::class, 'attendee');
+
+        // throttling -> setta il rate limiting a 60 request in 1 minuto per ogni action
+        // il throttling si usa soprattutto per le heavy actions (create/update/delete), a maggior ragione se sono pubbliche
+        // $this->middleware('throttle:60,1')
+        //     ->only(['store', 'destroy']);
+
+        // modo alternativo: settare requests/minuti in RouteServiceProvider e richiamare il nome del RateLimiter qui
+        $this->middleware('throttle:api')
+            ->only(['store', 'update', 'destroy']);
     }
 
     /**
@@ -27,13 +36,13 @@ class AttendeeController extends Controller
      */
     public function index(Event $event)
     {
-         $attendees = $this->loadRelationships(
+        $attendees = $this->loadRelationships(
             $event->attendees()->latest()
         );
 
-         return AttendeeResource::collection(
+        return AttendeeResource::collection(
             $attendees->paginate()
-         );
+        );
     }
 
     /**
@@ -42,7 +51,7 @@ class AttendeeController extends Controller
     public function store(Request $request, Event $event)
     {
         $attendee = $this->loadRelationships($event->attendees()->create([
-            'user_id' => 1
+            'user_id' => $request->user()->id
         ]));
 
         return new AttendeeResource($attendee);

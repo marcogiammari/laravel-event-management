@@ -28,6 +28,8 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // il ratelimiter è customizzabile: es. 200 req per utenti autenticati e 20 per non autenticati
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

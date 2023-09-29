@@ -24,6 +24,15 @@ class EventController extends Controller
         */
         // il secondo argomento è il parametro della rotta {event}
         $this->authorizeResource(Event::class, 'event');
+
+        // throttling -> setta il rate limiting a 60 request in 1 minuto per ogni action
+        // il throttling si usa soprattutto per le heavy actions (create/update/delete), a maggior ragione se sono pubbliche
+        // $this->middleware('throttle:60,1')
+        //     ->only(['store', 'update', 'destroy']);        
+            
+        // modo alternativo: settare requests/minuti in RouteServiceProvider e richiamare il nome del RateLimiter qui
+        $this->middleware('throttle:api')
+            ->only(['store', 'update', 'destroy']);
     }
     /**
      * Display a listing of the resource.
@@ -31,7 +40,7 @@ class EventController extends Controller
     public function index()
     {
         // array delle relazioni che l'utente può richiedere
-        
+
         // query comincia a costruire la query
         $query = $this->loadRelationships(Event::query());
 
@@ -40,7 +49,8 @@ class EventController extends Controller
 
         // raggruppa i risultati nella proprietà "data"
         return EventResource::collection(
-            $query->latest()->paginate());
+            $query->latest()->paginate()
+        );
     }
 
     /**
