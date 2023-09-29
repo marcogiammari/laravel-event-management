@@ -8,8 +8,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class EventReminderNotification extends Notification
+class EventReminderNotification extends Notification implements ShouldQueue
 {
+    // NB: per far funzionare la queue bisogna lanciare php artisan queue:work
+    // e lanciarlo ogni volta che si lancia il serve
+    // per controllare che queue:work sia sempre attivo è consigliable usare un process monitor come Supervisor
     use Queueable;
 
     /**
